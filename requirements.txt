@@ -1,0 +1,17 @@
+# Core dependencies for the published notebooks (01 and 02 — the original work).
+# Pin to your working versions if you can (pip freeze | grep -i <pkg>).
+numpy
+pandas
+scipy
+scikit-learn
+torch
+onnxruntime
+soundfile
+tqdm
+
+# Notebook 03 additionally runs inside Derek's forked pipeline, which pulls in
+# heavier deps (librosa, tensorflow, timm, lightgbm, tflite_runtime). Those are
+# NOT required to read notebooks 01-02; install them only if you reconstruct the
+# full blend run by forking Derek's public notebook (see notebooks/03 header).
+# librosa
+# tensorflow
