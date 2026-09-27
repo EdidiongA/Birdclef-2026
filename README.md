@@ -1,91 +1,97 @@
-# BirdCLEF+ 2026 — Late-Entry Solution & Ensemble-Diversity Study
+# BirdCLEF+ 2026: Late-Entry Solution and Ensemble-Diversity Study
 
-A solo, late-entry submission to [BirdCLEF+ 2026](https://www.kaggle.com/competitions/birdclef-2026)
-(multi-taxon passive-acoustic species identification in the Brazilian Pantanal),
-and the code behind an accepted CLEF 2026 working note.
+[![Paper](https://img.shields.io/badge/CLEF%202026-Working%20Note%20accepted-1f6feb)](paper/Anwanane_BirdCLEF2026_WorkingNote.pdf)
+[![Kaggle](https://img.shields.io/badge/Kaggle-top%2032%25%20of%204%2C092%20teams-20BEFF)](https://www.kaggle.com/competitions/birdclef-2026)
+[![Code license](https://img.shields.io/badge/code-MIT-green)](LICENSE)
+[![Paper license](https://img.shields.io/badge/paper-CC%20BY%204.0-lightgrey)](https://creativecommons.org/licenses/by/4.0/)
 
-> **Paper:** *Leveraging Public Resources as a Late Entrant in BirdCLEF+ 2026: An
+A solo, late-entry submission to [BirdCLEF+ 2026](https://www.kaggle.com/competitions/birdclef-2026),
+the multi-taxon passive-acoustic species-identification challenge set in the Brazilian
+Pantanal, together with the code behind an accepted CLEF 2026 working note.
+
+> **Paper.** *Leveraging Public Resources as a Late Entrant in BirdCLEF+ 2026: An
 > Empirical Study of Embedding-Space Ensemble Diversity and Its Limits.*
-> CLEF 2026 Working Notes (LifeCLEF / BirdCLEF+), CEUR-WS Proceedings, pp. 4388–4402.
-> **[Read the paper (PDF)](paper/Anwanane_BirdCLEF2026_WorkingNote.pdf)**
-> _Official CEUR-WS link will be added once the volume number is assigned._
+> CLEF 2026 Working Notes (LifeCLEF / BirdCLEF+), CEUR Workshop Proceedings, pp. 4388–4402.
+>
+> **[Read the paper (PDF)](paper/Anwanane_BirdCLEF2026_WorkingNote.pdf)** ·
+> Official CEUR-WS link to follow once the volume number is assigned.
 
----
+## Summary
 
-## TL;DR
+Entered with roughly two weeks left, working alone on free-tier compute. Forking a
+publicly shared pipeline closed most of the gap to the leaders at negligible cost;
+the paper's contribution is a controlled test of the most natural next step, a custom
+classifier head trained on the same foundation-model embeddings, and a documented
+negative result.
 
-- Entered **late (~2 weeks)**, solo, on **free-tier compute**.
-- Leveraged public resources to move from a from-scratch baseline (public ROC-AUC
-  **0.787**) to a competitive public-pipeline fork (**0.949**).
-- Tested a **custom MLP head on Perch v2 embeddings** as an ensemble member and
-  documented a **controlled negative result**: it did not improve the ensemble in
-  any configuration.
-- Final: **private ROC-AUC 0.94063, rank 1,313 / 4,092 (top ~32%)**, a 119-place
-  climb from the final public leaderboard.
+| Stage | Public ROC-AUC |
+|---|---|
+| From-scratch EfficientNet-B0 baseline | 0.787 |
+| Fork of the public Perch v2 + ProtoSSM + SED pipeline (exp019) | 0.949 |
+| Same pipeline plus a custom MLP head (best of three blends) | 0.948 |
+| **Final private leaderboard** | **0.94063, rank 1,313 of 4,092 (top 32.1%)** |
 
-This repo holds my **own** contributions — the embedding extraction, the head
-training, and the blend experiment. It does **not** redistribute competition data,
-derived artifacts, or the public pipeline I forked (see notes below).
-
----
-
-## What's mine vs. what I built on
-
-**Mine (in this repo):** extracting Perch v2 embeddings over all 10,658 unlabelled
-soundscapes; training a custom MLP head with a pseudo-labelling scheme; and the
-ensemble ablation that produced the negative result.
-
-**Not mine (credited, not re-hosted):** the competitive baseline is a fork of
-Derek's public pipeline (Kaggle
-[@sunderekkiz](https://www.kaggle.com/code/sunderekkiz/birdclef-2026-exp019-eos4-rank-power-06)),
-which supplies the Perch + ProtoSSM + SED models and the rank-percentile blend. It
-is linked, not copied. Full credit to all contributors is in the paper's
-acknowledgements and in the header of notebook `03`.
-
----
+The final standing includes a 119-place climb from the public leaderboard after the
+private-test shake-up.
 
 ## Key finding
 
-The head looked like a good ensemble candidate on every standalone metric
-(validation macro-AUC 0.852; median Spearman correlation of only 0.58 with the raw
-Perch logits), yet every blend weight *reduced* the score, monotonically. The
-interpretation: when multiple downstream models consume the **same** frozen
-foundation-model representation, their outputs can decorrelate freely while their
-access to label-relevant information is already bottlenecked upstream. Apparent
-diversity lives in noise, not complementary signal. The productive path is
-**representational orthogonality** (a different input view / backbone), not
-architectural variety on one embedding.
+Adding a well-trained MLP head to an already strong ensemble did not improve the
+public score, even though the head reached competitive AUC on its own. The paper
+argues this is a redundancy effect: every member of the ensemble, including the new
+head, was reading the same frozen Perch v2 embedding space, so their errors were
+correlated in exactly the places where the ensemble already failed. Diversity in
+architecture is not the same as diversity in information, and blending cannot recover
+signal that no member has access to. The result is small and specific, but it is
+measured carefully and it points at a question worth studying properly, which is the
+subject of ongoing follow-up work.
 
----
+## What is mine and what I built on
+
+**Mine.** The from-scratch EfficientNet-B0 baseline; the Perch v2 embedding
+extraction over all soundscapes; the MLP head, its training, and its
+pseudo-labelling loop; the blend experiments that test the head as an ensemble
+member; the analysis and the paper.
+
+**Built on (credited, not re-hosted).** The public Perch v2 + ProtoSSM + SED
+inference pipeline shared on Kaggle by Derek ([@sunderekkiz](https://www.kaggle.com/sunderekkiz)),
+which I forked as exp019 and used unchanged as the base ensemble. That code is not
+reproduced here; the third notebook contains only my own cells, with a header pointing
+to the original. Foundation-model embeddings come from Google's
+[Perch](https://github.com/google-research/perch) family.
 
 ## Repository structure
 
 ```
 .
-├── README.md
+├── paper/
+│   └── Anwanane_BirdCLEF2026_WorkingNote.pdf   # accepted working note (CC BY 4.0)
+├── notebooks/
+│   ├── 01_embedding_extraction.ipynb           # Perch v2 embeddings over all soundscapes
+│   ├── 02_head_training.ipynb                  # MLP head and pseudo-labelling
+│   └── 03_ensemble_blend_experiments.ipynb     # the head as an ensemble member (my cells only)
 ├── requirements.txt
-├── .gitignore
 ├── LICENSE
-├── paper/             # accepted CLEF 2026 working note (PDF, CC BY 4.0)
-└── notebooks/
-    ├── 01_embedding_extraction.ipynb          # Perch v2 embeddings over all soundscapes (my work)
-    ├── 02_head_training.ipynb                 # MLP head + pseudo-labelling (my work)
-    └── 03_ensemble_blend_experiments.ipynb    # my head as an ensemble member + blend (my cells only)
+└── README.md
 ```
 
-Notebooks 01 and 02 are self-contained. Notebook 03 contains **only my additions**
-to Derek's forked pipeline; to run the full blend, fork Derek's public notebook and
-insert these cells (see the notebook's header).
+## Getting started
 
-## Data & artifacts (not included)
+```bash
+pip install -r requirements.txt
+```
 
-- **Competition data is not included.** BirdCLEF+ 2026 data is **CC BY-NC-SA** and
-  may not be redistributed. Get it from the
-  [official competition page](https://www.kaggle.com/competitions/birdclef-2026).
-- **Derived artifacts are not included.** The embedding cache (~127,896 windows)
-  and the trained head weights are derivatives of the competition data **and** are
-  reserved for a planned follow-up study. The extraction/training methodology is
-  documented in the notebooks and the paper in enough detail to reproduce them.
+The notebooks were written for the Kaggle environment and expect the competition data
+at `/kaggle/input/competitions/birdclef-2026`. Open them in order: `01` produces the
+embedding cache, `02` trains the head on top of it, and `03` blends the head with the
+base ensemble. Paths at the top of each notebook can be edited for a local run.
+
+## Data and artefacts
+
+The competition data is released under CC BY-NC-SA and is **not** included in this
+repository; obtain it from the [competition page](https://www.kaggle.com/competitions/birdclef-2026).
+Derived artefacts (the embedding cache and trained head weights) are likewise not
+published, as they are being reused in follow-up work.
 
 ## Citation
 
@@ -96,26 +102,28 @@ insert these cells (see the notebook's header).
                An Empirical Study of Embedding-Space Ensemble Diversity and Its Limits},
   booktitle = {Working Notes of CLEF 2026 -- Conference and Labs of the Evaluation Forum},
   series    = {CEUR Workshop Proceedings},
+  publisher = {CEUR-WS.org},
   year      = {2026},
   pages     = {4388--4402},
-  publisher = {CEUR-WS.org},
-  note      = {Volume and pages to be added upon publication}
+  note      = {Volume number to be added on publication}
 }
 ```
 
 ## Acknowledgements
 
-Builds on publicly shared Kaggle work — full credit to Derek (@sunderekkiz) and the
-other contributors named in the paper, and to the Perch team for the foundation
-model. This project extends, rather than replaces, their work.
+Derek ([@sunderekkiz](https://www.kaggle.com/sunderekkiz)) for openly sharing the
+pipeline that this work builds on, and the other Kaggle participants whose public
+notebooks and discussion threads made a late entry viable. The BirdCLEF+ 2026
+organisers and annotators for the dataset, and the Perch team at Google for releasing
+the embedding models.
 
-## License
+## Licence
 
-The **code** here is under the [MIT License](LICENSE). This does not cover the
-competition data (CC BY-NC-SA, not included) or third-party resources the notebooks
-reference.
-The paper in `paper/` is © the author and licensed under CC BY 4.0, separately from the code.
+- **Code** in this repository: [MIT](LICENSE).
+- **Paper** in `paper/`: © 2026 the author, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- **Competition data and third-party resources** are not covered by either licence and are not included.
 
 ---
 
-*Edidiong-Abasi Anwanane · Kaggle: [didianwanane](https://www.kaggle.com/didianwanane) · Independent Researcher, Lagos, Nigeria*
+Edidiong-Abasi Anwanane · Independent Researcher, Lagos, Nigeria ·
+Kaggle [didianwanane](https://www.kaggle.com/didianwanane) · GitHub [EdidiongA](https://github.com/EdidiongA)
