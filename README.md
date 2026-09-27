@@ -6,8 +6,9 @@ and the code behind an accepted CLEF 2026 working note.
 
 > **Paper:** *Leveraging Public Resources as a Late Entrant in BirdCLEF+ 2026: An
 > Empirical Study of Embedding-Space Ensemble Diversity and Its Limits.*
-> CLEF 2026 Working Notes (LifeCLEF / BirdCLEF+), CEUR-WS Proceedings.
-> _Link added on publication._
+> CLEF 2026 Working Notes (LifeCLEF / BirdCLEF+), CEUR-WS Proceedings, pp. 4388–4402.
+> **[Read the paper (PDF)](paper/Anwanane_BirdCLEF2026_WorkingNote.pdf)**
+> _Official CEUR-WS link will be added once the volume number is assigned._
 
 ---
 
@@ -65,6 +66,7 @@ architectural variety on one embedding.
 ├── requirements.txt
 ├── .gitignore
 ├── LICENSE
+├── paper/             # accepted CLEF 2026 working note (PDF, CC BY 4.0)
 └── notebooks/
     ├── 01_embedding_extraction.ipynb          # Perch v2 embeddings over all soundscapes (my work)
     ├── 02_head_training.ipynb                 # MLP head + pseudo-labelling (my work)
@@ -95,6 +97,7 @@ insert these cells (see the notebook's header).
   booktitle = {Working Notes of CLEF 2026 -- Conference and Labs of the Evaluation Forum},
   series    = {CEUR Workshop Proceedings},
   year      = {2026},
+  pages     = {4388--4402},
   publisher = {CEUR-WS.org},
   note      = {Volume and pages to be added upon publication}
 }
@@ -111,6 +114,7 @@ model. This project extends, rather than replaces, their work.
 The **code** here is under the [MIT License](LICENSE). This does not cover the
 competition data (CC BY-NC-SA, not included) or third-party resources the notebooks
 reference.
+The paper in `paper/` is © the author and licensed under CC BY 4.0, separately from the code.
 
 ---
 
